@@ -27,6 +27,7 @@ const userSchema = mongoose.Schema(
   }
 );
 
+// 저장하기전 실행되는 함수(avatar생성, password 암호화)
 userSchema.pre("save", async function (next) {
   try {
     console.log("entered");
@@ -48,6 +49,14 @@ userSchema.pre("save", async function (next) {
     next(error);
   }
 });
+
+// password 비교 함수 생성
+userSchema.methods.comparePassword = function (userPassword, cb) {
+  bcrypt.compare(userPassword, this.password, function (err, isMatch) {
+    if (err) return cb(err);
+    cb(null, isMatch);
+  });
+};
 
 // 3
 module.exports = mongoose.model("user", userSchema);
