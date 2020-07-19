@@ -2,6 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
+const gravatar = require("gravatar");
 const userModel = require("../model/user");
 
 // @route GET http://localhost:5000/user/test
@@ -24,6 +25,11 @@ router.post("/register", (req, res) => {
           message: "email already exists",
         });
       } else {
+        const avatar = gravatar.url(req.body.email, {
+          s: "200", // size
+          r: "pg", // rating
+          d: "mm", // Default
+        });
         bcrypt.hash(req.body.password, 10, (err, hash) => {
           if (err) {
             return res.json({
@@ -34,6 +40,7 @@ router.post("/register", (req, res) => {
               name: req.body.name,
               email: req.body.email,
               password: hash,
+              avatar: avatar,
             });
             user
               .save()
