@@ -1,6 +1,7 @@
 // 1
 const express = require("express");
 const router = express.Router();
+const userModel = require("../model/user");
 
 // @route GET http://localhost:5000/user/test
 // @desc TEST users route
