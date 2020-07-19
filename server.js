@@ -7,6 +7,9 @@ dotenv.config();
 
 const app = express();
 
+// route 파일
+const userRoute = require("./routes/user");
+
 // DB connect
 require("./config/database.js");
 
@@ -14,6 +17,9 @@ require("./config/database.js");
 app.use(morgan("dev"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+// routing
+app.use("/user", userRoute);
 
 const PORT = process.env.PORT || 7000;
 
