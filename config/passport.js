@@ -8,6 +8,7 @@ opts.secretOrKey = process.env.SECRET;
 module.exports = (passport) => {
   passport.use(
     new Strategy(opts, (payload, done) => {
+      console.log(payload);
       userModel
         .findById(payload.id)
         .then((user) => {

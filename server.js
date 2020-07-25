@@ -10,6 +10,7 @@ const app = express();
 
 // route 파일
 const userRoute = require("./routes/user");
+const profileRoute = require("./routes/profile");
 
 // DB connect
 require("./config/database.js");
@@ -24,6 +25,7 @@ require("./config/passport")(passport);
 
 // routing
 app.use("/user", userRoute);
+app.use("/profile", profileRoute);
 
 const PORT = process.env.PORT || 7000;
 
