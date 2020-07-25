@@ -9,8 +9,30 @@ const checkAuth = passport.authenticate("jwt", { session: false });
 const profileModel = require("../model/profile");
 // 3
 
+// @route GET http://localhost:5000/profile
+// @desc current user profile
+// @access Private
+router.get("/", checkAuth, (req, res) => {
+  profileModel
+    .findOne({ user: req.user.id })
+    .populate("user", ["name", "email", "avatar"])
+    .then((profile) => {
+      if (!profile) {
+        return res.json({
+          message: "No profile",
+        });
+      } else {
+        res.json({
+          message: "successful get profile",
+          profileInfo: profile,
+        });
+      }
+    })
+    .catch((err) => res.json(err));
+});
+
 // @route POST http://localhost:5000/profile
-// @desc Register user profile
+// @desc Register / edit profile
 // @access Private
 router.post("/", checkAuth, (req, res) => {
   const profileFields = {};
@@ -33,9 +55,18 @@ router.post("/", checkAuth, (req, res) => {
     .findOne({ user: req.user.id })
     .then((profile) => {
       if (profile) {
-        return res.json({
-          message: "profile already register, please update profile",
-        });
+        // profile정보가 있으면 update로 진행
+        profileModel
+          .findOneAndUpdate(
+            { user: req.user.id },
+            { $set: profileFields },
+            { new: true }
+          )
+          .then((profile) => res.json(profile))
+          .catch((err) => res.json(err));
+        // return res.json({
+        //   message: "profile already register, please update profile",
+        // });
       } else {
         // profile이 없으면 등록
         new profileModel(profileFields)
