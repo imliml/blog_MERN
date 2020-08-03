@@ -103,7 +103,7 @@ router.get("/total", (req, res) => {
     .catch((err) => res.status(500).json(err));
 });
 
-// @route POST http://localhost:5000/profile/experince
+// @route POST http://localhost:5000/profile/experience
 // @desc add experience to profile
 // @access Private
 router.post("/experience", checkAuth, (req, res) => {
@@ -151,6 +151,28 @@ router.post("/education", checkAuth, (req, res) => {
         .save()
         .then((profile) => res.status(200).json(profile))
         .catch((err) => res.status(400).json(err));
+    })
+    .catch((err) => res.status(500).json(err));
+});
+
+// @route DELETE http://localhost:5000/profile/experience/:exp_id
+// @desc delete experience to profile
+// @access Private
+router.delete("/experience/:exp_id", checkAuth, (req, res) => {
+  profileModel
+    .findOne({ user: req.user.id })
+    .then((profile) => {
+      const removeIndex = profile.experience
+        .map((item) => item.id)
+        .indexOf(req.params.exp_id);
+
+      profile.experience.splice(removeIndex, 1);
+      profile
+        .save()
+        .then((profile) => {
+          res.status(200).json(profile);
+        })
+        .catch((err) => res.status(404).json(err));
     })
     .catch((err) => res.status(500).json(err));
 });
