@@ -129,5 +129,31 @@ router.post("/experience", checkAuth, (req, res) => {
     .catch((err) => res.status(500).json(err));
 });
 
+// @route POST http://localhost:5000/profile/education
+// @desc add education to profile
+// @access Private
+router.post("/education", checkAuth, (req, res) => {
+  profileModel
+    .findOne({ user: req.user.id })
+    .then((profile) => {
+      const newEdu = {
+        school: req.body.school,
+        degree: req.body.degree,
+        major: req.body.major,
+        from: req.body.from,
+        to: req.body.to,
+        current: req.body.current,
+        description: req.body.description,
+      };
+
+      profile.education.unshift(newEdu);
+      profile
+        .save()
+        .then((profile) => res.status(200).json(profile))
+        .catch((err) => res.status(400).json(err));
+    })
+    .catch((err) => res.status(500).json(err));
+});
+
 // 2
 module.exports = router;
