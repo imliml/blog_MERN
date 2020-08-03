@@ -58,8 +58,8 @@ router.post("/", checkAuth, (req, res) => {
         // profile정보가 있으면 update로 진행
         profileModel
           .findOneAndUpdate(
-            { user: req.user.id },
-            { $set: profileFields },
+            { user: req.user.id }, // 업데이트 대상자
+            { $set: profileFields }, // 업데이트 내용
             { new: true }
           )
           .then((profile) => res.json(profile))
@@ -81,7 +81,27 @@ router.post("/", checkAuth, (req, res) => {
 // @route DELETE http://localhost:5000/profile/:id
 // @desc Delete user profile
 // @access Private
-router.delete("/:id", checkAuth, (req, res) => {});
+router.delete("/", checkAuth, (req, res) => {
+  const profileId = req.user.id;
+  profileModel
+    .findOneAndDelete(profileId)
+    .then(() =>
+      res.json({
+        message: "deleted profile",
+      })
+    )
+    .catch((err) => res.json(err));
+});
+
+// @route GET http://localhost:5000/profile/total
+// @desc total get user profile
+// @access Public
+router.get("/total", (req, res) => {
+  profileModel
+    .find()
+    .then((docs) => res.status(200).json(docs))
+    .catch((err) => res.status(500).json(err));
+});
 
 // 2
 module.exports = router;
