@@ -2,11 +2,12 @@ const jwt = require("jsonwebtoken");
 
 const userModel = require("../model/user");
 
-function tokenGenerator(payload) {
+const tokenGenerator = (payload) => {
   return jwt.sign(payload, process.env.SECRET, { expiresIn: 36000 });
-}
+};
 
 const validateRegisterInput = require("../validation/register");
+const validateLoginInput = require("../validation/login");
 
 exports.register_user = (req, res) => {
   // email 유무 체크 -> password 암호화 -> DB 저장
@@ -101,19 +102,29 @@ exports.login_user = (req, res) => {
   // email 체크 -> password 체크 -> returning jwt
 
   const { email, password } = req.body;
+
+  const { errors, isValid } = validateLoginInput(req.body);
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
   userModel
     .findOne({ email })
     .then((user) => {
       if (!user) {
-        return res.json({
-          message: "No email",
-        });
+        errors.email = "No email";
+        return res.status(404).json(errors);
+        // return res.json({
+        //   message: "No email",
+        // });
       } else {
         user.comparePassword(password, (err, isMatch) => {
           if (err || isMatch === false) {
-            return res.json({
-              message: "password incorrect",
-            });
+            errors.password = "password incorrect";
+            return res.status(404).json(errors);
+            // return res.json({
+            //   message: "password incorrect",
+            // });
           } else {
             const payload = {
               id: user._id,
