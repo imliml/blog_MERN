@@ -33,5 +33,46 @@ router.post("/", checkAuth, (req, res) => {
     .catch((err) => res.status(500).json(err));
 });
 
+// @route GET http://localhost:5000/post/total
+// @desc total get post
+// @access Public
+router.get("/total", (req, res) => {
+  postModel
+    .find()
+    .sort({ date: -1 })
+    .then((docs) => {
+      res.status(200).json(docs);
+    })
+    .catch((err) => res.status(500).json(err));
+});
+
+// @route GET http://localhost:5000/post/:post_id
+// @desc detail post
+// @access Private
+router.get("/:post_id", checkAuth, (req, res) => {
+  postModel
+    .findById(req.params.post_id)
+    .then((doc) => {
+      res.status(200).json(doc);
+    })
+    .catch((err) => res.status(500).json(err));
+});
+
+// @route DELETE http://localhost:5000/post/:post_id
+// @desc delete post
+// @access Private
+router.delete("/:post_id", checkAuth, (req, res) => {
+  postModel
+    .findById(req.params.post_id)
+    .then((post) => {
+      if (post.user.toString() !== req.user.id) {
+        return res.status(400).json({
+          message: "User not authorized",
+        });
+      }
+      post.remove().then(() => res.json({ success: true }));
+    })
+    .catch((err) => res.status(500).json(err));
+});
 // 2
 module.exports = router;
