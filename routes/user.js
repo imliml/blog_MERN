@@ -1,10 +1,13 @@
 // 1
 const express = require("express");
 const router = express.Router();
+const jwt = require("jsonwebtoken");
 
 const passport = require("passport");
 
 const checkAuth = passport.authenticate("jwt", { session: false });
+
+const userModel = require("../model/user");
 
 const {
   register_user,
@@ -27,8 +30,47 @@ router.post("/login", login_user);
 // @route GET /current
 // @desc Current user
 // @access Private
-
 router.get("/current", checkAuth, current_user);
+
+// @route POST http://localhost:5000/user/activation
+// @desc Activation account / confirm email
+// @access Private
+router.post("/activation", (req, res) => {
+  const { token } = req.body;
+
+  if (token) {
+    jwt.verify(token, process.env.SECRET, (err, decoded) => {
+      if (err) {
+        return res.status(401).json({
+          errors: "expired link. Signup again",
+        });
+      } else {
+        const { name, email, password } = jwt.decode(token);
+
+        const newUser = new userModel({
+          name,
+          email,
+          password,
+        });
+
+        newUser
+          .save()
+          .then((user) => {
+            res.status(200).json({
+              success: true,
+              userInfo: user,
+            });
+          })
+          .catch((err) =>
+            res.status(400).json({
+              success: false,
+              errors: err,
+            })
+          );
+      }
+    });
+  }
+});
 
 // 2
 module.exports = router;

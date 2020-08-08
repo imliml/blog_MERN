@@ -1,9 +1,11 @@
 const jwt = require("jsonwebtoken");
-
+const sgMail = require("@sendgrid/mail");
 const userModel = require("../model/user");
 
-const tokenGenerator = (payload) => {
-  return jwt.sign(payload, process.env.SECRET, { expiresIn: 36000 });
+sgMail.setApiKey(process.env.MAIL_KEY);
+
+const tokenGenerator = (payload, time) => {
+  return jwt.sign(payload, process.env.SECRET, { expiresIn: time });
 };
 
 const validateRegisterInput = require("../validation/register");
@@ -27,33 +29,33 @@ exports.register_user = (req, res) => {
         errors.message = "email already exists";
         return res.status(404).json(errors);
       } else {
-        const newUser = new userModel({
-          name,
-          email,
-          password,
-        });
+        const payload = { name, email, password };
+        const token = tokenGenerator(payload, "10m");
 
-        newUser
-          .save()
-          .then((result) => {
-            res.json({
-              message: "save user",
-              userInfo: {
-                id: result._id,
-                name: result.name,
-                email: result.email,
-                avatar: result.avatar,
-                password: result.password,
-                date: {
-                  createdAt: result.createdAt,
-                  updatedAt: result.updatedAt,
-                },
-              },
+        const emailData = {
+          from: process.env.MAIL_FROM,
+          to: email,
+          subject: "Account activation Link",
+          html: `
+            <h1>Please use the following to activate your account</h1>
+            <p>http://localhost:3000/users/activate/${token}</p>
+            <hr />
+            <p>This email may containe sensetive information</p>
+            <p>http://localhost:3000</p>
+          `,
+        };
+
+        sgMail
+          .send(emailData)
+          .then(() => {
+            return res.status(200).json({
+              message: `Email has been sent to ${email}`,
             });
           })
           .catch((err) => {
-            res.status(404).json({
-              error: err.message,
+            return res.status(400).json({
+              success: false,
+              error: err,
             });
           });
 
