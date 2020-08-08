@@ -7,6 +7,9 @@ const passport = require("passport");
 const checkAuth = passport.authenticate("jwt", { session: false });
 
 const profileModel = require("../model/profile");
+
+const validateProfileInput = require("../validation/profile.js");
+
 // 3
 
 // @route GET http://localhost:5000/profile
@@ -50,6 +53,10 @@ router.post("/", checkAuth, (req, res) => {
     profileFields.skills = req.body.skills.split(",");
   }
 
+  const { errors, isValid } = validateProfileInput(req.body);
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
   // profile이 있는지 체크
   profileModel
     .findOne({ user: req.user.id })
@@ -173,6 +180,28 @@ router.delete("/experience/:exp_id", checkAuth, (req, res) => {
           res.status(200).json(profile);
         })
         .catch((err) => res.status(404).json(err));
+    })
+    .catch((err) => res.status(500).json(err));
+});
+
+// @route DELETE http://localhost:5000/profile/education/:edu_id
+// @desc delete education to profile
+// @access Private
+router.delete("/education/:edu_id", checkAuth, (req, res) => {
+  profileModel
+    .findOne({ user: req.user.id })
+    .then((profile) => {
+      const removeIndex = profile.education
+        .map((item) => item.id)
+        .indexOf(req.params.edu_id);
+
+      profile.education.splice(removeIndex, 1);
+      profile
+        .save()
+        .then((profile) => {
+          res.status(200).json(profile);
+        })
+        .catch((err) => res.status(4040).json(err));
     })
     .catch((err) => res.status(500).json(err));
 });
