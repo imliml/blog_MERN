@@ -6,18 +6,25 @@ function tokenGenerator(payload) {
   return jwt.sign(payload, process.env.SECRET, { expiresIn: 36000 });
 }
 
+const validateRegisterInput = require("../validation/register");
+
 exports.register_user = (req, res) => {
   // email 유무 체크 -> password 암호화 -> DB 저장
 
   const { name, email, password } = req.body;
 
+  // v
+  const { errors, isValid } = validateRegisterInput(req.body);
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
   userModel
     .findOne({ email })
     .then((user) => {
       if (user) {
-        return res.json({
-          message: "email already exists",
-        });
+        errors.message = "email already exists";
+        return res.status(404).json(errors);
       } else {
         const newUser = new userModel({
           name,
@@ -44,7 +51,7 @@ exports.register_user = (req, res) => {
             });
           })
           .catch((err) => {
-            res.json({
+            res.status(404).json({
               error: err.message,
             });
           });
@@ -84,7 +91,7 @@ exports.register_user = (req, res) => {
       }
     })
     .catch((err) => {
-      res.json({
+      res.status(500).json({
         error: err.message,
       });
     });
