@@ -74,5 +74,55 @@ router.delete("/:post_id", checkAuth, (req, res) => {
     })
     .catch((err) => res.status(500).json(err));
 });
+
+// @route POST http://localhost:5000/post/like/:post_id
+// @desc like post
+// @access Private
+router.post("/like/:post_id", checkAuth, (req, res) => {
+  //
+  postModel
+    .findById(req.params.post_id)
+    .then((post) => {
+      if (
+        post.likes.filter((like) => like.user.toString() === req.user.id)
+          .length > 0
+      ) {
+        return res.status(400).json({
+          message: "User already liked this post",
+        });
+      } else {
+        post.likes.unshift({ user: req.user.id });
+        post.save().then((post) => res.status(200).json(post));
+      }
+    })
+    .catch((err) => res.status(500).json(err.message));
+});
+
+// @route POST http://localhost:5000/post/unlike/:post_id
+// @desc unlike post
+// @access Private
+router.post("/unlike/:post_id", checkAuth, (req, res) => {
+  postModel
+    .findById(req.params.post_id)
+    .then((post) => {
+      if (
+        post.likes.filter((like) => like.user.toString() === req.user.id)
+          .length === 0
+      ) {
+        return res.status(400).json({
+          message: "You have not liked this post",
+        });
+      } else {
+        const removeIndex = post.likes
+          .map((item) => item.user.toString())
+          .indexOf(req.user.id);
+
+        post.likes.splice(removeIndex, 1);
+        post.save().then((post) => res.status(200).json(post));
+      }
+    })
+    .catch((err) => res.status(500).json(err.message));
+});
+
 // 2
 module.exports = router;
