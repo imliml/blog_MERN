@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const sgMail = require("@sendgrid/mail");
+const _ = require("lodash");
 const userModel = require("../model/user");
 
 sgMail.setApiKey(process.env.MAIL_KEY);
@@ -137,7 +138,7 @@ exports.login_user = (req, res) => {
 
             res.json({
               message: "successful login",
-              tokenInfo: tokenGenerator(payload),
+              tokenInfo: tokenGenerator(payload, "7d"),
             });
           }
         });
@@ -178,9 +179,10 @@ exports.forgot_password = (req, res) => {
           message: "No user",
         });
       } else {
-        const token = jwt.sign({ _id: user._id }, process.env.SECRET, {
-          expiresIn: "30m",
-        });
+        // const token = jwt.sign({ _id: user._id }, process.env.SECRET, {
+        //   expiresIn: "30m",
+        // });
+        const token = tokenGenerator({ _id: user._id }, "30m");
 
         // 이메일로 보낼 내용
         const emailData = {
@@ -196,7 +198,7 @@ exports.forgot_password = (req, res) => {
           `,
         };
 
-        //
+        // token을 업데이트 하고 메일 발송
         return user
           .updateOne({ resetPasswordLink: token })
           .then((user) => {
@@ -222,4 +224,49 @@ exports.forgot_password = (req, res) => {
       }
     })
     .catch((err) => res.status(500).json(err));
+};
+
+exports.reset_password = (req, res) => {
+  //
+  const { resetPasswordLink, newPassword } = req.body;
+
+  if (resetPasswordLink) {
+    jwt.verify(resetPasswordLink, process.env.SECRET, (err, decoded) => {
+      if (err) {
+        return res.status(400).json({
+          error: "Expired link. Try again",
+        });
+      } else {
+        userModel
+          .findOne({ resetPasswordLink })
+          .then((user) => {
+            const updateFields = {
+              password: newPassword,
+              resetPasswordLink: "",
+            };
+
+            user = _.extend(user, updateFields);
+
+            user
+              .save()
+              .then(() => {
+                res.status(200).json({
+                  message: "Great! Now you can login with your new password",
+                });
+              })
+              .catch((err) => {
+                return res.status(400).json({
+                  error: "Error resetting user password",
+                });
+              });
+          })
+
+          .catch((err) => {
+            return res.status(400).json({
+              error: "Something went wrong. Try later",
+            });
+          });
+      }
+    });
+  }
 };
