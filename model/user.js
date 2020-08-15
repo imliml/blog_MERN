@@ -21,6 +21,10 @@ const userSchema = mongoose.Schema(
     avatar: {
       type: String,
     },
+    resetPasswordLink: {
+      data: String,
+      default: "",
+    },
   },
   {
     timestamps: true,

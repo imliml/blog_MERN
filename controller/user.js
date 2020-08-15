@@ -167,3 +167,59 @@ exports.current_user = (req, res) => {
     avatar: req.user.avatar,
   });
 };
+
+exports.forgot_password = (req, res) => {
+  const { email } = req.body;
+  userModel
+    .findOne({ email })
+    .then((user) => {
+      if (!user) {
+        return res.status(404).json({
+          message: "No user",
+        });
+      } else {
+        const token = jwt.sign({ _id: user._id }, process.env.SECRET, {
+          expiresIn: "30m",
+        });
+
+        // 이메일로 보낼 내용
+        const emailData = {
+          from: process.env.MAIL_FROM,
+          to: email,
+          subject: "Password Reset link",
+          html: `
+            <h1>Please use the following link to reset your password</h1>
+            <p>${process.env.CLIENT_URL}/users/password/reset/${token}</p>
+            <hr />
+            <p>This email may contain sensetive information</p>
+            <p>${process.env.CLIENT_URL}</p>
+          `,
+        };
+
+        //
+        return user
+          .updateOne({ resetPasswordLink: token })
+          .then((user) => {
+            sgMail
+              .send(emailData)
+              .then(() => {
+                return res.status(200).json({
+                  message: `Email has been sent to ${email}. Follow the instruction to activate your account`,
+                });
+              })
+              .catch((err) => {
+                return res.status(404).json({
+                  message: err.message,
+                });
+              });
+          })
+          .catch((err) =>
+            res.status(400).json({
+              error:
+                "Database connection error on user password forgot request",
+            })
+          );
+      }
+    })
+    .catch((err) => res.status(500).json(err));
+};

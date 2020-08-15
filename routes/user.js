@@ -13,6 +13,7 @@ const {
   register_user,
   login_user,
   current_user,
+  forgot_password,
 } = require("../controller/user");
 
 // @route POST http://localhost:5000/user/register
@@ -71,6 +72,11 @@ router.post("/activation", (req, res) => {
     });
   }
 });
+
+// @route PUT http://localhost:5000/user/forgotpassword
+// @desc Forgot password / send email
+// @access Private
+router.put("/forgotpassword", forgot_password);
 
 // 2
 module.exports = router;
