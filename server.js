@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const dotenv = require("dotenv");
 const passport = require("passport");
+const cors = require("cors");
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ const postRoute = require("./routes/post");
 require("./config/database.js");
 
 // 미들웨어 설정
+app.use(cors());
 app.use(morgan("dev"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
