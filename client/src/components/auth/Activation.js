@@ -12,15 +12,12 @@ const Activation = ({ match }) => {
   });
 
   useEffect(() => {
-    let token = match.params.token;
-
-    let { name } = jwt.decode(token);
-
-    if (token) {
-      setFormData({ ...formData, name, token });
-    }
-
-    console.log(name);
+    // let token = match.params.token;
+    // let { name } = jwt.decode(token);
+    // if (token) {
+    //   setFormData({ ...formData, name, token });
+    // }
+    // console.log(name);
   }, [match.params]);
   const { name, token, show } = formData;
 

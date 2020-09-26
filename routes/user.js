@@ -15,6 +15,7 @@ const {
   current_user,
   forgot_password,
   reset_password,
+  activation_user,
 } = require("../controller/user");
 
 // @route POST http://localhost:5000/user/register
@@ -37,42 +38,7 @@ router.get("/current", checkAuth, current_user);
 // @route POST http://localhost:5000/user/activation
 // @desc Activation account / confirm email
 // @access Private
-router.post("/activation", (req, res) => {
-  const { token } = req.body;
-
-  if (token) {
-    jwt.verify(token, process.env.SECRET, (err, decoded) => {
-      if (err) {
-        return res.status(401).json({
-          errors: "expired link. Signup again",
-        });
-      } else {
-        const { name, email, password } = jwt.decode(token);
-
-        const newUser = new userModel({
-          name,
-          email,
-          password,
-        });
-
-        newUser
-          .save()
-          .then((user) => {
-            res.status(200).json({
-              success: true,
-              userInfo: user,
-            });
-          })
-          .catch((err) =>
-            res.status(400).json({
-              success: false,
-              errors: err,
-            })
-          );
-      }
-    });
-  }
-});
+router.post("/activation", activation_user);
 
 // @route PUT http://localhost:5000/user/forgotpassword
 // @desc Forgot password / send email

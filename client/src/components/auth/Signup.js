@@ -1,8 +1,11 @@
 import React, { useState } from "react";
+import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import { setAlert } from "../../actions/alert";
+import { register } from "../../actions/auth";
+import PropTypes from "prop-types";
 
-const Signup = () => {
+const Signup = ({ setAlert, register, isAuthenticated }) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -18,17 +21,16 @@ const Signup = () => {
 
   const onSubmit = async (event) => {
     event.preventDefault();
-    const userData = {
-      name,
-      email,
-      password,
-      password2,
-    };
 
-    axios
-      .post("http://localhost:5000/user/register", userData)
-      .then((result) => console.log(result))
-      .catch((err) => console.log(err));
+    if (password !== password2) {
+      setAlert("Passwords do not match", "danger");
+    } else {
+      register({ name, email, password });
+    }
+    // axios
+    //   .post("http://localhost:5000/user/register", userData)
+    //   .then((result) => console.log(result))
+    //   .catch((err) => console.log(err));
   };
 
   return (
@@ -92,4 +94,14 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+Signup.propTypes = {
+  setAlert: PropTypes.func.isRequired,
+  register: PropTypes.func.isRequired,
+  isAuthenticated: PropTypes.bool,
+};
+
+const mapStateToProps = (state) => ({
+  isAuthenticated: state.auth.isAuthenticated,
+});
+
+export default connect(mapStateToProps, { setAlert, register })(Signup);
