@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import jwt from "jsonwebtoken";
 import { Link } from "react-router-dom";
 import authSvg from "../../img/welcome.svg";
+import axios from "axios";
 
 const Activation = ({ match }) => {
   const [formData, setFormData] = useState({
@@ -25,7 +26,11 @@ const Activation = ({ match }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(formData);
+
+    axios
+      .post("http://localhost:5000/user/activation", { token })
+      .then((result) => console.log(result))
+      .catch((err) => console.log(err));
   };
 
   return (
