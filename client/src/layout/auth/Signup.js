@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import {connect} from "react-redux";
 import { Link } from "react-router-dom";
 import {setAlert} from "../../actions/alert";
+import {register} from "../../actions/auth";
 import PropTypes from "prop-types"
-import axios from "axios";
 
-const Signup = ({history, setAlert}) => {
+
+const Signup = ({history, setAlert, register}) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -30,11 +31,9 @@ const Signup = ({history, setAlert}) => {
       password,
       password2,
     };
+    console.log(userData)
 
-    axios
-      .post("http://localhost:5000/user/register", userData)
-      .then((result) => history.push("/login"))
-      .catch((err) => console.log(err));
+    register(userData)
   };
 
   return (
@@ -99,12 +98,13 @@ const Signup = ({history, setAlert}) => {
 };
 
 Signup.propTypes = {
-  setAlert: PropTypes.func.isRequired
+  setAlert: PropTypes.func.isRequired,
+  register: PropTypes.func.isRequired
 };
 
 
 
 export default connect(
     null,
-    {setAlert}
+    {setAlert, register}
 )(Signup);
