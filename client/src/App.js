@@ -6,6 +6,7 @@ import Landing from "./layout/Landing";
 import Footer from "./layout/Footer";
 import Signup from "./layout/auth/Signup";
 import Login from "./layout/auth/Login";
+import Alert from "./layout/Alert"
 
 import {Provider} from 'react-redux';
 import store from "./store"
@@ -19,10 +20,13 @@ function App() {
           <Fragment>
             <Navbar />
             <Route exact path="/" component={Landing} />
-            <Switch>
-              <Route exact path="/register" component={Signup} />
-              <Route exact path="/login" component={Login} />
-            </Switch>
+            <section className="container">
+                <Alert />
+                <Switch>
+                  <Route exact path="/register" component={Signup} />
+                  <Route exact path="/login" component={Login} />
+                </Switch>
+            </section>
             <Footer />
           </Fragment>
         </Router>
