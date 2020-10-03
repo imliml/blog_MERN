@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";
 
-const Login = ({ history }) => {
+const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -19,11 +18,7 @@ const Login = ({ history }) => {
       email,
       password,
     };
-
-    axios
-      .post("http://localhost:5000/user/login", loginData)
-      .then((result) => history.push("/dashboard"))
-      .catch((err) => console.log(err));
+    console.log(loginData);
   };
 
   return (
