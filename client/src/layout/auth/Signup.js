@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
-const Signup = () => {
+const Signup = ({history}) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -27,7 +27,7 @@ const Signup = () => {
 
     axios
       .post("http://localhost:5000/user/register", userData)
-      .then((result) => console.log(result))
+      .then((result) => history.push("/login"))
       .catch((err) => console.log(err));
   };
 

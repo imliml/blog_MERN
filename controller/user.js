@@ -30,35 +30,44 @@ exports.register_user = (req, res) => {
         errors.message = "email already exists";
         return res.status(404).json(errors);
       } else {
-        const payload = { name, email, password };
-        const token = tokenGenerator(payload, "10m");
+        const newUser = new userModel({
+          name,
+          email,
+          password
+        })
 
-        const emailData = {
-          from: process.env.MAIL_FROM,
-          to: email,
-          subject: "Account activation Link",
-          html: `
-            <h1>Please use the following to activate your account</h1>
-            <p>http://localhost:3000/users/activate/${token}</p>
-            <hr />
-            <p>This email may containe sensetive information</p>
-            <p>http://localhost:3000</p>
-          `,
-        };
-
-        sgMail
-          .send(emailData)
-          .then(() => {
-            return res.status(200).json({
-              message: `Email has been sent to ${email}`,
-            });
-          })
-          .catch((err) => {
-            return res.status(400).json({
-              success: false,
-              error: err,
-            });
-          });
+        newUser
+            .save()
+            .then(user => res.json(user))
+        // const payload = { name, email, password };
+        // const token = tokenGenerator(payload, "10m");
+        //
+        // const emailData = {
+        //   from: process.env.MAIL_FROM,
+        //   to: email,
+        //   subject: "Account activation Link",
+        //   html: `
+        //     <h1>Please use the following to activate your account</h1>
+        //     <p>http://localhost:3000/users/activate/${token}</p>
+        //     <hr />
+        //     <p>This email may containe sensetive information</p>
+        //     <p>http://localhost:3000</p>
+        //   `,
+        // };
+        //
+        // sgMail
+        //   .send(emailData)
+        //   .then(() => {
+        //     return res.status(200).json({
+        //       message: `Email has been sent to ${email}`,
+        //     });
+        //   })
+        //   .catch((err) => {
+        //     return res.status(400).json({
+        //       success: false,
+        //       error: err,
+        //     });
+        //   });
 
         // const avatar = gravatar.url(req.body.email, {
         //   s: "200", // size

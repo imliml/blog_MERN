@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios"
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -18,7 +19,10 @@ const Login = () => {
       email,
       password,
     };
-    console.log(loginData);
+    axios
+        .post("http://localhost:5000/user/login", loginData)
+        .then((result) => console.log(result))
+        .catch((err) => console.log(err));
   };
 
   return (
