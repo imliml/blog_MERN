@@ -1,16 +1,20 @@
-import React, { useState } from "react";
-import axios from "axios"
+import React, { Fragment, useState } from "react";
+import { Link, Redirect } from "react-router-dom";
+import { connect } from "react-redux";
+import { setAlert } from "../../actions/alert";
+import { login } from "../../actions/auth";
+import PropTypes from "prop-types";
 
-const Login = () => {
-  const [formData, setFormData] = useState({
+const Login = ({ setAlert, login, isAuthenticated }) => {
+  const [loginData, setLoginData] = useState({
     email: "",
     password: "",
   });
 
-  const { email, password } = formData;
+  const { email, password } = loginData;
 
   const onChange = (event) => {
-    setFormData({ ...formData, [event.target.name]: event.target.value });
+    setLoginData({ ...loginData, [event.target.name]: event.target.value });
   };
 
   const onSubmit = async (event) => {
@@ -19,49 +23,60 @@ const Login = () => {
       email,
       password,
     };
-    axios
-        .post("http://localhost:5000/user/login", loginData)
-        .then((result) => console.log(result))
-        .catch((err) => console.log(err));
+
+    login(loginData);
   };
 
+  if (isAuthenticated) {
+    return <Redirect to="/dashboard" />;
+  }
+
   return (
-    <div className="login">
-      <div className="container">
-        <div className="row">
-          <div className="col-md-8 m-auto">
-            <h1 className="display-4 text-center">Login</h1>
-            <p className="lead text-center">Login user</p>
-            <form onSubmit={onSubmit}>
-              <div className="form-group">
-                <input
-                  className="form-group"
-                  type="email"
-                  className="form-control form-control-lg"
-                  placeholder="Email"
-                  name="email"
-                  value={email}
-                  onChange={onChange}
-                />
-              </div>
-              <div className="form-group">
-                <input
-                  className="form-group"
-                  type="password"
-                  className="form-control form-control-lg"
-                  placeholder="Password"
-                  name="password"
-                  value={password}
-                  onChange={onChange}
-                />
-              </div>
-              <input type="submit" className="btn btn-info btn-block mt-4" />
-            </form>
-          </div>
+    // <div className="login">
+    //   <div className="container">
+    //     <div className="row">
+    //       <div className="col-md-8 m-auto">
+    <Fragment>
+      <h1 className="display- text-center">Login</h1>
+      <p className="lead text-center">Login user</p>
+      <form onSubmit={onSubmit}>
+        <div className="form-group">
+          <input
+            className="form-control form-control-lg"
+            type="email"
+            placeholder="Email"
+            name="email"
+            value={email}
+            onChange={onChange}
+          />
         </div>
-      </div>
-    </div>
+        <div className="form=group">
+          <input
+            className="form-control form-control-lg"
+            type="password"
+            placeholder="Password"
+            name="password"
+            value={password}
+            onChange={onChange}
+          />
+        </div>
+        <input type="submit" className="btn btn-info btn-block mt-4" />
+      </form>
+    </Fragment>
+    //       </div>
+    //     </div>
+    //   </div>
+    // </div>
   );
 };
 
-export default Login;
+Login.propTypes = {
+  setAlert: PropTypes.func.isRequired,
+  login: PropTypes.func.isRequired,
+};
+
+const mapStateToProps = (state) => ({
+  isAuthenticated: state.auth.isAuthenticated,
+});
+
+export default connect(mapStateToProps, { setAlert, login })(Login);
