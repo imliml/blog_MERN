@@ -33,12 +33,10 @@ exports.register_user = (req, res) => {
         const newUser = new userModel({
           name,
           email,
-          password
-        })
+          password,
+        });
 
-        newUser
-            .save()
-            .then(user => res.json(user))
+        newUser.save().then((user) => res.json(user));
         // const payload = { name, email, password };
         // const token = tokenGenerator(payload, "10m");
         //
@@ -147,7 +145,7 @@ exports.login_user = (req, res) => {
 
             res.json({
               message: "successful login",
-              tokenInfo: tokenGenerator(payload, "7d"),
+              tokenInfo: "bearer " + tokenGenerator(payload, "7d"),
             });
           }
         });
