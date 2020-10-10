@@ -1,12 +1,11 @@
 import React, { useState } from "react";
-import {connect} from "react-redux";
+import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import {setAlert} from "../../actions/alert";
-import {register} from "../../actions/auth";
-import PropTypes from "prop-types"
+import { setAlert } from "../../actions/alert";
+import { register } from "../../actions/auth";
+import PropTypes from "prop-types";
 
-
-const Signup = ({history, setAlert, register}) => {
+const Signup = ({ history, setAlert, register }) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -23,7 +22,7 @@ const Signup = ({history, setAlert, register}) => {
   const onSubmit = async (event) => {
     event.preventDefault();
     if (password !== password2) {
-      setAlert('Password do not match', 'danger')
+      setAlert("Password do not match", "danger");
     }
     const userData = {
       name,
@@ -31,9 +30,9 @@ const Signup = ({history, setAlert, register}) => {
       password,
       password2,
     };
-    console.log(userData)
+    console.log(userData);
 
-    register(userData)
+    register(userData);
   };
 
   return (
@@ -99,12 +98,7 @@ const Signup = ({history, setAlert, register}) => {
 
 Signup.propTypes = {
   setAlert: PropTypes.func.isRequired,
-  register: PropTypes.func.isRequired
+  register: PropTypes.func.isRequired,
 };
 
-
-
-export default connect(
-    null,
-    {setAlert, register}
-)(Signup);
+export default connect(null, { setAlert, register })(Signup);
